@@ -339,7 +339,7 @@ public class FSTObjectInput implements ObjectInput {
         return null;
     }
 
-    public Object readObjectWithHeader(FSTClazzInfo.FSTFieldInfo referencee) throws Exception {
+    private Object readObjectWithHeader(FSTClazzInfo.FSTFieldInfo referencee) throws Exception {
         FSTClazzInfo clzSerInfo;
         Class c;
         final int readPos = getCodec().getInputPos();
@@ -649,6 +649,25 @@ public class FSTObjectInput implements ObjectInput {
     }
 
     protected void readObjectFields(FSTClazzInfo.FSTFieldInfo referencee, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo[] fieldInfo, Object newObj, int startIndex, int version) throws Exception {
+        StringBuilder builder = new StringBuilder("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nserializationInfo = ")
+            .append(serializationInfo.toString())
+            .append("\n")
+            .append("FSTFieldInfos = [\n");
+        if (fieldInfo != null) {
+            for (int i = 0; i < fieldInfo.length; ++i) {
+                builder.append(fieldInfo[i].toString()).append(",\n");
+            }
+        }
+        builder.append("]\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n").toString();
+
+        try {
+            internalReadObjectFields(referencee, serializationInfo, fieldInfo, newObj, startIndex, version);
+        } catch (Exception e) {
+            throw new Exception(builder.toString(), e);
+        }
+    }
+
+    protected void internalReadObjectFields(FSTClazzInfo.FSTFieldInfo referencee, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo[] fieldInfo, Object newObj, int startIndex, int version) throws Exception {
         
         if ( getCodec().isMapBased() ) {
             readFieldsMapBased(referencee, serializationInfo, newObj);
